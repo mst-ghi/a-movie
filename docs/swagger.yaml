@@ -1,0 +1,143 @@
+definitions:
+  core.Response-movies_MoviesResponseType:
+    properties:
+      data:
+        $ref: '#/definitions/movies.MoviesResponseType'
+      errors:
+        type: object
+      message:
+        type: string
+    type: object
+  movies.Movie:
+    properties:
+      classification: {}
+      comment:
+        type: boolean
+      country:
+        items:
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+          type: object
+        type: array
+      cover:
+        type: string
+      description:
+        type: string
+      downloadas:
+        type: string
+      duration: {}
+      genres:
+        items:
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+          type: object
+        type: array
+      id:
+        type: integer
+      image:
+        type: string
+      imdb:
+        type: number
+      playas:
+        type: string
+      rating:
+        type: number
+      sources:
+        items:
+          properties:
+            id:
+              type: integer
+            quality:
+              type: string
+            type:
+              type: string
+            url:
+              type: string
+          type: object
+        type: array
+      title:
+        type: string
+      type:
+        type: string
+      year:
+        type: integer
+    type: object
+  movies.MoviesResponseType:
+    properties:
+      movies:
+        items:
+          $ref: '#/definitions/movies.Movie'
+        type: array
+    type: object
+info:
+  contact: {}
+paths:
+  /api:
+    get:
+      responses: {}
+      summary: app route, get heathy status
+      tags:
+      - App
+  /api/v1/movies:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: filter list movie
+        enum:
+        - created
+        - imdb
+        - year
+        in: query
+        name: filter
+        type: string
+      - description: pagination page_value, default 0
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.Response-movies_MoviesResponseType'
+      security:
+      - Bearer: []
+      summary: get list of movies
+      tags:
+      - Movies
+  /api/v1/movies/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: query on movie name
+        in: query
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.Response-movies_MoviesResponseType'
+      security:
+      - Bearer: []
+      summary: get list of movies based on search query
+      tags:
+      - Movies
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
