@@ -26,11 +26,6 @@ const docTemplate = `{
         },
         "/api/v1/movies": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -72,11 +67,6 @@ const docTemplate = `{
         },
         "/api/v1/movies/search": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -223,13 +213,6 @@ const docTemplate = `{
                     }
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "Bearer": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
         }
     }
 }`

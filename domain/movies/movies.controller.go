@@ -19,7 +19,6 @@ func NewMoviesController() *MoviesController {
 }
 
 // @tags     Movies
-// @security Bearer
 // @router   /api/v1/movies/search [get]
 // @summary  get list of movies based on search query
 // @accept   json
@@ -33,7 +32,6 @@ func (ctrl *MoviesController) Search(c *gin.Context) {
 }
 
 // @tags     Movies
-// @security Bearer
 // @router   /api/v1/movies [get]
 // @summary  get list of movies
 // @accept   json
