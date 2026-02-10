@@ -6,6 +6,7 @@ import (
 	"app/core/swagger"
 	"app/domain"
 	"app/pkg/handlers"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,8 +25,15 @@ func Initialize() {
 	engine.RedirectTrailingSlash = true
 	engine.RedirectFixedPath = true
 
+	engine.LoadHTMLGlob("templates/*")
+	engine.Static("/assets", "assets")
+
 	engine.Use(middlewares.Cors())
 	engine.Use(gin.CustomRecovery(handlers.InternalErrorHandler))
+
+	engine.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.tmpl", gin.H{})
+	})
 }
 
 func Serve(addr ...string) {
