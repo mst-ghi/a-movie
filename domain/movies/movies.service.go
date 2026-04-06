@@ -27,8 +27,6 @@ func NewMoviesService() *MoviesService {
 func (service *MoviesService) Search(search string) ([]Movie, error) {
 	url := fmt.Sprintf("%s/api/search/%s/%s", API_URL, url.QueryEscape(search), API_KEY)
 
-	fmt.Println(url, search)
-
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
