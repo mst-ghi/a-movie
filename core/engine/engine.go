@@ -1,12 +1,14 @@
 package engine
 
 import (
+	"log"
+	"net/http"
+
 	"app/core/config"
 	"app/core/middlewares"
 	"app/core/swagger"
 	"app/domain"
 	"app/pkg/handlers"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -43,7 +45,10 @@ func Serve(addr ...string) {
 		runAddress = addr[0]
 	}
 
-	engine.Run(runAddress)
+	log.Printf("server listening on %s", runAddress)
+	if err := engine.Run(runAddress); err != nil {
+		log.Fatalf("server stopped: %v", err)
+	}
 }
 
 func RegisterRoutes() {

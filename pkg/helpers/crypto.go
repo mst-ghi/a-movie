@@ -1,60 +1,61 @@
 package helpers
 
 import (
-	"app/core/config"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
-	"encoding/hex"
-	"fmt"
-	"io"
+	"errors"
+
+	"app/core/config"
 )
 
-func Encrypt(stringToEncrypt string) (encryptedString string) {
-	keyString := config.GetAppKey()
-
-	key, _ := hex.DecodeString(keyString)
-	plaintext := []byte(stringToEncrypt)
-
-	block, err := aes.NewCipher(key)
+func newGCM() (cipher.AEAD, error) {
+	block, err := aes.NewCipher(config.GetAppKey())
 	if err != nil {
-		panic(err.Error())
+		return nil, err
 	}
 
-	cipherText := make([]byte, aes.BlockSize+len(plaintext))
-	iv := cipherText[:aes.BlockSize]
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		panic(err)
-	}
-
-	stream := cipher.NewCFBEncrypter(block, iv)
-	stream.XORKeyStream(cipherText[aes.BlockSize:], plaintext)
-
-	return base64.URLEncoding.EncodeToString(cipherText)
+	return cipher.NewGCM(block)
 }
 
-func Decrypt(stringToDecrypt string) string {
-	keyString := config.GetAppKey()
-
-	key, _ := hex.DecodeString(keyString)
-	cipherText, _ := base64.URLEncoding.DecodeString(stringToDecrypt)
-
-	block, err := aes.NewCipher(key)
+func Encrypt(plaintext string) (string, error) {
+	gcm, err := newGCM()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
-	if len(cipherText) < aes.BlockSize {
-		panic("cipherText too short")
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := rand.Read(nonce); err != nil {
+		return "", err
 	}
 
-	iv := cipherText[:aes.BlockSize]
-	cipherText = cipherText[aes.BlockSize:]
+	ciphertext := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
 
-	stream := cipher.NewCFBDecrypter(block, iv)
+	return base64.URLEncoding.EncodeToString(ciphertext), nil
+}
 
-	stream.XORKeyStream(cipherText, cipherText)
+func Decrypt(encoded string) (string, error) {
+	gcm, err := newGCM()
+	if err != nil {
+		return "", err
+	}
 
-	return fmt.Sprintf("%s")
+	ciphertext, err := base64.URLEncoding.DecodeString(encoded)
+	if err != nil {
+		return "", err
+	}
+
+	if len(ciphertext) < gcm.NonceSize() {
+		return "", errors.New("ciphertext too short")
+	}
+
+	nonce, body := ciphertext[:gcm.NonceSize()], ciphertext[gcm.NonceSize():]
+
+	plaintext, err := gcm.Open(nil, nonce, body, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return string(plaintext), nil
 }

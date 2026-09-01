@@ -1,8 +1,7 @@
 package config
 
 import (
-	"crypto/rand"
-	"encoding/hex"
+	"crypto/sha256"
 	"log"
 	"os"
 	"time"
@@ -10,11 +9,26 @@ import (
 	"github.com/joho/godotenv"
 )
 
+var requiredKeys = []string{
+	"APP_KEY",
+	"APP_TZ",
+	"SERVER_HOST",
+	"SERVER_PORT",
+	"MOVIE_API_URL",
+	"MOVIE_API_KEY",
+}
+
 func InitializeAndSet() {
 	err := godotenv.Load(".env")
 
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Fatalf("Error loading .env file: copy .env.example to .env and fill in the values")
+	}
+
+	for _, key := range requiredKeys {
+		if Get(key) == "" {
+			log.Fatalf("Missing required environment variable: %s", key)
+		}
 	}
 
 	location, err := time.LoadLocation(Get("APP_TZ"))
@@ -38,12 +52,8 @@ func GetRunAddress() string {
 	return Get("SERVER_HOST") + ":" + Get("SERVER_PORT")
 }
 
-func GetAppKey() string {
-	key := []byte(Get("APP_KEY"))
-
-	if _, err := rand.Read(key); err != nil {
-		panic(err.Error())
-	}
-
-	return hex.EncodeToString(key)
+// GetAppKey derives a stable 32-byte AES-256 key from the APP_KEY env value.
+func GetAppKey() []byte {
+	sum := sha256.Sum256([]byte(Get("APP_KEY")))
+	return sum[:]
 }

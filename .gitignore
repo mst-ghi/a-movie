@@ -1,0 +1,10 @@
+# Environment
+.env
+
+# Binaries
+a-movie
+*.exe
+
+# Go
+*.test
+*.out

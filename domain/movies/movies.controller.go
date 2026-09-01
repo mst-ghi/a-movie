@@ -24,10 +24,22 @@ func NewMoviesController() *MoviesController {
 // @accept   json
 // @produce  json
 // @Param    query query string true "query on movie name"
-// @success  200 {object} core.Response[MoviesResponseType]
+// @success  200 {object} MoviesEnvelope
 func (ctrl *MoviesController) Search(c *gin.Context) {
-	search := c.DefaultQuery("query", "2026")
-	movies, _ := ctrl.service.Search(search)
+	query := c.Query("query")
+	if query == "" {
+		ctrl.root.BadRequestError(c, map[string]string{
+			"query": "The query is required",
+		})
+		return
+	}
+
+	movies, err := ctrl.service.Search(c.Request.Context(), query)
+	if err != nil {
+		ctrl.root.UpstreamError(c, err)
+		return
+	}
+
 	ctrl.root.Success(c, MoviesResponse(movies))
 }
 
@@ -38,9 +50,15 @@ func (ctrl *MoviesController) Search(c *gin.Context) {
 // @produce  json
 // @Param   filter query string false "filter list movie" enums(created, imdb, year)
 // @Param    page query string false "pagination page_value, default 0"
-// @success  200 {object} core.Response[MoviesResponseType]
+// @success  200 {object} MoviesEnvelope
 func (ctrl *MoviesController) FindAll(c *gin.Context) {
-	search, filter, page := core.PaginateQueries(c)
-	movies, _ := ctrl.service.List(search, filter, page)
+	filter, page := core.PaginateQueries(c)
+
+	movies, err := ctrl.service.List(c.Request.Context(), filter, page)
+	if err != nil {
+		ctrl.root.UpstreamError(c, err)
+		return
+	}
+
 	ctrl.root.Success(c, MoviesResponse(movies))
 }

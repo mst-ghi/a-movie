@@ -6,5 +6,6 @@ const (
 	MessageUnprocessable = "Invalid input data"
 	MessageNotFound      = "Data not found"
 	MessageBadRequest    = "Bad request"
+	MessageBadGateway    = "Upstream service is unavailable"
 	MessageInvalidToken  = "Authorization token is invalid"
 )

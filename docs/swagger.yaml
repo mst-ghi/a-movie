@@ -1,13 +1,4 @@
 definitions:
-  core.Response-movies_MoviesResponseType:
-    properties:
-      data:
-        $ref: '#/definitions/movies.MoviesResponseType'
-      errors:
-        type: object
-      message:
-        type: string
-    type: object
   movies.Movie:
     properties:
       classification: {}
@@ -68,6 +59,17 @@ definitions:
       year:
         type: integer
     type: object
+  movies.MoviesEnvelope:
+    properties:
+      data:
+        $ref: '#/definitions/movies.MoviesResponseType'
+      errors:
+        additionalProperties:
+          type: string
+        type: object
+      message:
+        type: string
+    type: object
   movies.MoviesResponseType:
     properties:
       movies:
@@ -81,7 +83,7 @@ paths:
   /api:
     get:
       responses: {}
-      summary: app route, get heathy status
+      summary: app route, get healthy status
       tags:
       - App
   /api/v1/movies:
@@ -107,7 +109,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/core.Response-movies_MoviesResponseType'
+            $ref: '#/definitions/movies.MoviesEnvelope'
       summary: get list of movies
       tags:
       - Movies
@@ -127,7 +129,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/core.Response-movies_MoviesResponseType'
+            $ref: '#/definitions/movies.MoviesEnvelope'
       summary: get list of movies based on search query
       tags:
       - Movies

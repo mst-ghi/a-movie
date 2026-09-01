@@ -9,7 +9,7 @@
                 "tags": [
                     "App"
                 ],
-                "summary": "app route, get heathy status",
+                "summary": "app route, get healthy status",
                 "responses": {}
             }
         },
@@ -48,7 +48,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/core.Response-movies_MoviesResponseType"
+                            "$ref": "#/definitions/movies.MoviesEnvelope"
                         }
                     }
                 }
@@ -79,7 +79,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/core.Response-movies_MoviesResponseType"
+                            "$ref": "#/definitions/movies.MoviesEnvelope"
                         }
                     }
                 }
@@ -87,20 +87,6 @@
         }
     },
     "definitions": {
-        "core.Response-movies_MoviesResponseType": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/movies.MoviesResponseType"
-                },
-                "errors": {
-                    "type": "object"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "movies.Movie": {
             "type": "object",
             "properties": {
@@ -189,6 +175,23 @@
                 },
                 "year": {
                     "type": "integer"
+                }
+            }
+        },
+        "movies.MoviesEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/movies.MoviesResponseType"
+                },
+                "errors": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         },

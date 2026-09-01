@@ -47,7 +47,18 @@ type MoviesResponseType struct {
 	Movies []Movie `json:"movies"`
 }
 
+// MoviesEnvelope describes the JSON envelope returned by the movies endpoints.
+type MoviesEnvelope struct {
+	Message string             `json:"message"`
+	Errors  map[string]string  `json:"errors"`
+	Data    MoviesResponseType `json:"data"`
+}
+
 func MoviesResponse(movies []Movie) ResponseType {
+	if movies == nil {
+		movies = []Movie{}
+	}
+
 	return ResponseType{
 		"movies": movies,
 	}

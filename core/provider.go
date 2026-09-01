@@ -1,39 +1,20 @@
 package core
 
 import (
+	"log"
+	"net/http"
+
 	"app/pkg/messages"
 	"app/pkg/validation"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type ResponseTemplate struct {
-	Status  int    `json:"status"`
-	Message string `json:"message"`
-	Data    any    `json:"data"`
-}
+// Controller is stateless: response values are always passed per call, never
+// stored on the controller, so it is safe for concurrent request handlers.
+type Controller struct{}
 
-type Controller struct {
-	Service  any
-	Response ResponseTemplate
-}
-
-type Error map[string]string
-
-type Response[T any] struct {
-	Message string
-	Errors  struct{ errorKey string }
-	Data    T
-}
-
-type SuccessResponse struct {
-	Message string
-	Errors  struct{ errorKey string }
-	Data    struct{ dataKey any }
-}
-
-var controller *Controller
+var controller = &Controller{}
 
 func GetController() *Controller {
 	return controller
@@ -48,17 +29,20 @@ func ToResponse(message string, data any, errors any) map[string]any {
 }
 
 func (ctrl *Controller) Success(c *gin.Context, data any) {
-	if data != nil {
-		ctrl.Response.Data = data
+	if data == nil {
+		data = map[string]any{}
 	}
 
-	response := ToResponse(
-		ctrl.Response.Message,
-		ctrl.Response.Data,
-		map[string]any{},
-	)
+	c.SecureJSON(http.StatusOK, ToResponse(messages.MessageOk, data, map[string]any{}))
+}
 
-	c.SecureJSON(ctrl.Response.Status, response)
+func (ctrl *Controller) UpstreamError(c *gin.Context, err error) {
+	log.Printf("upstream request failed: %v", err)
+
+	c.SecureJSON(
+		http.StatusBadGateway,
+		ToResponse(messages.MessageBadGateway, map[string]any{}, map[string]any{}),
+	)
 }
 
 func (ctrl *Controller) JsonBindError(c *gin.Context, err error) {
@@ -70,39 +54,29 @@ func (ctrl *Controller) JsonBindError(c *gin.Context, err error) {
 	c.SecureJSON(http.StatusUnprocessableEntity, response)
 }
 
-func (ctrl *Controller) UnprocessableError(c *gin.Context, err Error) {
+func (ctrl *Controller) UnprocessableError(c *gin.Context, errs map[string]string) {
 	response := ToResponse(
 		messages.MessageUnprocessable,
 		map[string]any{},
-		err,
+		errs,
 	)
 	c.SecureJSON(http.StatusUnprocessableEntity, response)
 }
 
-func (ctrl *Controller) NotFoundError(c *gin.Context, err Error) {
+func (ctrl *Controller) NotFoundError(c *gin.Context, errs map[string]string) {
 	response := ToResponse(
 		messages.MessageNotFound,
 		map[string]any{},
-		err,
+		errs,
 	)
 	c.SecureJSON(http.StatusNotFound, response)
 }
 
-func (ctrl *Controller) BadRequestError(c *gin.Context, err Error) {
+func (ctrl *Controller) BadRequestError(c *gin.Context, errs map[string]string) {
 	response := ToResponse(
 		messages.MessageBadRequest,
 		map[string]any{},
-		err,
+		errs,
 	)
 	c.SecureJSON(http.StatusBadRequest, response)
-}
-
-func Initialize() {
-	controller = &Controller{
-		Response: ResponseTemplate{
-			Status:  http.StatusOK,
-			Message: messages.MessageOk,
-			Data:    map[string]any{},
-		},
-	}
 }

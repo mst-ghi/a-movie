@@ -6,8 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func PaginateQueries(c *gin.Context) (string, string, int) {
-	search := c.DefaultQuery("search", "")
+func PaginateQueries(c *gin.Context) (string, int) {
 	filter := c.DefaultQuery("filter", "created")
 
 	if filter == "" {
@@ -19,5 +18,5 @@ func PaginateQueries(c *gin.Context) (string, string, int) {
 		page = 0
 	}
 
-	return search, filter, page
+	return filter, page
 }

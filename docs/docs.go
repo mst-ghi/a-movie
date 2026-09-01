@@ -20,7 +20,7 @@ const docTemplate = `{
                 "tags": [
                     "App"
                 ],
-                "summary": "app route, get heathy status",
+                "summary": "app route, get healthy status",
                 "responses": {}
             }
         },
@@ -59,7 +59,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/core.Response-movies_MoviesResponseType"
+                            "$ref": "#/definitions/movies.MoviesEnvelope"
                         }
                     }
                 }
@@ -90,7 +90,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/core.Response-movies_MoviesResponseType"
+                            "$ref": "#/definitions/movies.MoviesEnvelope"
                         }
                     }
                 }
@@ -98,20 +98,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "core.Response-movies_MoviesResponseType": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "$ref": "#/definitions/movies.MoviesResponseType"
-                },
-                "errors": {
-                    "type": "object"
-                },
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "movies.Movie": {
             "type": "object",
             "properties": {
@@ -200,6 +186,23 @@ const docTemplate = `{
                 },
                 "year": {
                     "type": "integer"
+                }
+            }
+        },
+        "movies.MoviesEnvelope": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/movies.MoviesResponseType"
+                },
+                "errors": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         },

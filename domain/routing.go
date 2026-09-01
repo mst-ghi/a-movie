@@ -9,11 +9,11 @@ import (
 
 // @tags    App
 // @router	/api [get]
-// @summary	app route, get heathy status
+// @summary	app route, get healthy status
 func HomeRoute(c *gin.Context) {
 	ctrl := core.GetController()
 	ctrl.Success(c, map[string]string{
-		"heathy": "I'm OK...",
+		"healthy": "I'm OK...",
 	})
 }
 
